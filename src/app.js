@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import authPlugin from './plugins/auth.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
@@ -20,6 +21,12 @@ export async function buildApp(opts = {}) {
   fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
     try { done(null, body ? JSON.parse(body) : {}); }
     catch (e) { done(e); }
+  });
+
+  // Allow frontend on Vercel to call this backend
+  await fastify.register(cors, {
+    origin: true,
+    credentials: true,
   });
 
   // Register auth plugin (JWT + cookie)
